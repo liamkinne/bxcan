@@ -269,6 +269,27 @@ impl<I: Instance> CanConfig<'_, I> {
         self
     }
 
+    /// Configures bit timing for a given bit-rate in hz.
+    pub fn set_bit_rate(self, hz: u32) -> Self {
+        let mut quanta = 16;
+
+        loop {
+            let prescale = 80_000_000 / (hz * quanta);
+
+            if prescale < 2 {
+                quanta -= 1;
+                assert!(quanta > 0);
+            } else {
+                let brp = prescale - 1;
+                let ts2 = (quanta / 8) -1;
+                let ts1 = (quanta - ts2) - 3;
+
+                self.can.set_bit_timing(ts2 << 20 | ts1 << 16 | brp);
+                return self;
+            }
+        }
+    }
+
     /// Enables or disables loopback mode: Internally connects the TX and RX
     /// signals together.
     pub fn set_loopback(self, enabled: bool) -> Self {
