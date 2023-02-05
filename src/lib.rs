@@ -274,6 +274,7 @@ impl<I: Instance> CanConfig<'_, I> {
         let mut quanta = 16;
 
         loop {
+            /// TODO: source clock frequency from somewhere.
             let prescale = 80_000_000 / (hz * quanta);
 
             if prescale < 2 {
